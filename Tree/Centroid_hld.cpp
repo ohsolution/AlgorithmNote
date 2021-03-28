@@ -127,8 +127,12 @@ int main()
 		adj[x].push_back({ i,cost });
 	}
 
-	mk(0);
-	dfs(0);
+	// decomposition order is important hld > ctd slow
+	
+	mk(0); // centroid decomposition > mk centroid tree
+	
+	// heavy light decomposition
+	dfs(0); 
 	dfs2(0);
 
 	int q; ci(q);

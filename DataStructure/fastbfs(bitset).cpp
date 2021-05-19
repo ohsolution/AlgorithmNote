@@ -1,3 +1,5 @@
+// O(v^2/64 +v)
+
 auto bfs = [&](int sp) // get longest dist from sp that can vist every vertex
 {
 	queue<int> bq;

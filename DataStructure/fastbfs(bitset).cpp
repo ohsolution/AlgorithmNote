@@ -18,14 +18,17 @@ auto bfs = [&](int sp) // get longest dist from sp that can vist every vertex
 
 			bitset<max_v> cbit = cur & adj[u];
 
-			if ((cur ^= cbit) == 0) return cnt+1;
+			
 
 			while (cbit!=0)
 			{
 				int c = cbit._Find_first();
 				cbit[c] = 0;
+				cur[c]=0;
 				bq.push(c);
 			};
+			
+			if(cur==0) return cnt+1;
 		}						
 	}
 

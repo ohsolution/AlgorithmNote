@@ -1,3 +1,5 @@
+using ull = unsigned __int128; // 64bit g++
+
 auto isprime = [&](ull t)
 {
 		vector<ull> pli = { 2,325, 9375, 28178, 450775, 9780504, 1795265022 };

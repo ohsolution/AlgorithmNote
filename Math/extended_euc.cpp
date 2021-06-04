@@ -14,8 +14,8 @@ setl get_sol(LL a, LL b , LL r)
 	x *= r / g;
 	y *= r / g;
 
-	LL A = a / g;
-	LL B = b / g;
+	LL A = b/ g;
+	LL B = a / g;
 
 	// x' = x + t * A 일반해 t 정수
 	// y' = y - t * B

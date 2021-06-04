@@ -1,16 +1,17 @@
-tuple<LL, LL, LL> egcd(LL a, LL b)
+LL egcd(LL a, LL b, LL& x, LL& y) 
 {
-	if (!b) return { a,1,0 };
-	LL g, x, y;
-	tie(g, x, y) = egcd(b, a % b);
-	return { g,y,x - (a / b) * y };
+	if (b) 
+	{
+		LL d = egcd(b, a % b, y, x);
+		return y -= a / b * x, d;
+	}
+	return x = 1, y = 0, a;
 }
 
 setl get_sol(LL a, LL b , LL r)
 {
 	//ax + by = r
-	LL g, x, y;
-	tie(g, x, y) = egcd(a, b);
+    LL x,y,g=egcd(a,b,x,y);
 	x *= r / g;
 	y *= r / g;
 
@@ -23,8 +24,8 @@ setl get_sol(LL a, LL b , LL r)
 	return { x,y }; // ax+by=r 의 해 반환
 }
 
-auto crt = [&](LL a1, LL a2,LL m1,LL m2)
-{		
+auto crt = [&](LL a1, LL a2, LL m1, LL m2)
+{
 	// 법이 서로소가 아닐때 gcd(m1,m2) !=1
 	// x= a1(mod m1), x= a2(mod m2) <- m1x+m2y = a2-a1 
 
@@ -32,10 +33,9 @@ auto crt = [&](LL a1, LL a2,LL m1,LL m2)
 
 	LL r = a2 - a1;
 
-	LL g, x, y;
-	tie(g, x, y) = egcd(m1, m2);
+	LL x, y, g = egcd(m1, m2, x, y);		
 
-	if (r % g != 0) return;
+	if (r % g != 0) return; // 해 없음
 
 	x *= r / g;
 	y *= r / g;

@@ -37,4 +37,5 @@ auto isprime = [&](ull t)
 
 		for (auto& x : pli) if (!miler(t, x)) return false;
 		return true;
+    
 };

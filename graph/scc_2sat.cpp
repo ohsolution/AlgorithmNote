@@ -42,9 +42,9 @@ int main()
         st.push(u);
     };
 
-    fa(i, 0, max_v) if (!vist[i]) dfs(i);
+    fa(i, 0, n<<1) if (!vist[i]) dfs(i);
 
-    vist.assign(max_v, 0);
+    vist.assign(n<<1, 0);
 
     function<void(int)> dfs2 = [&](int u)
     {
@@ -62,8 +62,20 @@ int main()
     }
 
     bool flag = 1;
-    fa(i, 0, 1e4) flag &= (sn[i] != sn[i + 1e4]);
+    fa(i, 0, n) flag &= (sn[i] != sn[i +n]);
     flag ? co("YES") : co("NO");
+
+    vector<int> tar(n << 1);
+    iota(tar.begin(), tar.end(), 0);
+    sort(tar.begin(), tar.end(), [&](int a, int b) {return sn[a] < sn[b]; });
+
+    vector<int> ret(n, -1);
+
+    for (auto& x : tar)
+    {
+        int t = x >= n ? x - n : x;
+        if (ret[t] == -1) ret[t] = x>=n;        
+    }
 
     return 0;
 }

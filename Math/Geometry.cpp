@@ -100,9 +100,77 @@ int main()
 	}
 	else co(0);
 
+	
+	
+	
 	return 0;
 }
 
+void function()
+auto ccw = [&](setl a, setl b, setl c)
+	{
+		return (b.first-a.first)*(c.second-b.second) - (c.first-b.first)*(b.second-a.second);
+	};
 
 
+auto Isintersect=[&](setl a, setl b, setl c, setl d)
+	{
+		int ab = ccw(a, b, c) * ccw(a, b, d);
+		int cd = ccw(c, d, a) * ccw(c, d, a);
 
+		if (ab == 0 && cd == 0) // 두 벡터 평행
+		{
+			if (a > b) swap(a, b);
+			if (c > d) swap(c, d);
+			return !(c > b || a > d);
+		}
+
+		return ab <= 0 && cd <= 0;
+	};
+
+auto g = [&](setl p, vector<setl>& vi) // 볼록다각형 내부 점판정 log n
+	{
+		if (vi.size() == 2)
+		{
+			return Isintersect(vi[0], vi[1], vi[0], p);
+		}
+
+		int l = 1;
+		int r = vi.size();
+
+		while (l ^ r)
+		{
+			int m = l + r >> 1;
+
+			if (ccw(vi[0], vi[m], p) >= 0) l = m + 1;
+			else r = m;
+		}
+
+		l -= (l == vi.size()) && (ccw(vi[0],vi[l-1],p) == 0);
+		
+		return (l != 1 && l != vi.size() && ccw(vi[l-1],vi[l],p) >= 0);
+	};
+
+	auto f = [&](vector<setl>& vi) // convex hull
+	{
+		sort(vi.begin(), vi.end());
+		sort(vi.begin() + 1, vi.end(), [&](setl& a, setl& b) {return ccw(vi[0], a, b) > 0; });
+
+		vector<int> st(n, -1);
+		st[0] = 0;
+		st[1] = 1;
+		int top = 2;
+
+		fa(i, 2, n)
+		{
+			while (top >= 2 && ccw(vi[st[top - 2]], vi[st[top - 1]], vi[i]) <= 0) --top;
+			st[top++] = i;
+		}
+
+		vector<setl> ret(top);
+		fa(i, 0, top) ret[i] = vi[st[i]];
+		return ret;
+	};
+
+
+	

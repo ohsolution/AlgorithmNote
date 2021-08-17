@@ -107,13 +107,14 @@ int main()
 }
 
 void function()
-auto ccw = [&](setl a, setl b, setl c)
+{
+	auto ccw = [&](setl a, setl b, setl c)
 	{
 		return (b.first-a.first)*(c.second-b.second) - (c.first-b.first)*(b.second-a.second);
 	};
 
 
-auto Isintersect=[&](setl a, setl b, setl c, setl d)
+	auto Isintersect=[&](setl a, setl b, setl c, setl d)
 	{
 		int ab = ccw(a, b, c) * ccw(a, b, d);
 		int cd = ccw(c, d, a) * ccw(c, d, a);
@@ -128,7 +129,7 @@ auto Isintersect=[&](setl a, setl b, setl c, setl d)
 		return ab <= 0 && cd <= 0;
 	};
 
-auto g = [&](setl p, vector<setl>& vi) // 볼록다각형 내부 점판정 log n
+	auto g = [&](setl p, vector<setl>& vi) // 볼록다각형 내부 점판정 log n
 	{
 		if (vi.size() == 2)
 		{
@@ -147,7 +148,7 @@ auto g = [&](setl p, vector<setl>& vi) // 볼록다각형 내부 점판정 log n
 		}
 
 		l -= (l == vi.size()) && (ccw(vi[0],vi[l-1],p) == 0);
-		
+
 		return (l != 1 && l != vi.size() && ccw(vi[l-1],vi[l],p) >= 0);
 	};
 
@@ -169,8 +170,8 @@ auto g = [&](setl p, vector<setl>& vi) // 볼록다각형 내부 점판정 log n
 
 		vector<setl> ret(top);
 		fa(i, 0, top) ret[i] = vi[st[i]];
-		return ret;
+		return ret; 
 	};
 
 
-	
+}

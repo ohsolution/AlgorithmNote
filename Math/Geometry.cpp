@@ -133,7 +133,7 @@ void function()
 	{
 		if (vi.size() == 2)
 		{
-			return Isintersect(vi[0], vi[1], vi[0], p);
+			return ccw(vi[0],vi[1],p)==0&& vi[0] <= p && p <= vi[1];
 		}
 
 		int l = 1;

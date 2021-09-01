@@ -129,33 +129,11 @@ void function()
 		return ab <= 0 && cd <= 0;
 	};
 
-	auto g = [&](setl p, vector<setl>& vi) // 볼록다각형 내부 점판정 log n
-	{
-		if (vi.size() == 2)
-		{
-			return ccw(vi[0],vi[1],p)==0&& vi[0] <= p && p <= vi[1];
-		}
-
-		int l = 1;
-		int r = vi.size();
-
-		while (l ^ r)
-		{
-			int m = l + r >> 1;
-
-			if (ccw(vi[0], vi[m], p) >= 0) l = m + 1;
-			else r = m;
-		}
-
-		l -= (l == vi.size()) && (ccw(vi[0],vi[l-1],p) == 0);
-
-		return (l != 1 && l != vi.size() && ccw(vi[l-1],vi[l],p) >= 0);
-	};
-
-	auto f = [&](vector<setl>& vi) // convex hull
+		
+	auto f = [&](vector<setl>& vi)
 	{
 		sort(vi.begin(), vi.end());
-		sort(vi.begin() + 1, vi.end(), [&](setl& a, setl& b) {return ccw(vi[0], a, b) > 0; });
+		sort(vi.begin() + 1, vi.end(), [&](setl& a, setl& b) {return ccw(vi[0], a, b) ? ccw(vi[0], a, b) > 0:a<b; });
 
 		vector<int> st(n, -1);
 		st[0] = 0;
@@ -170,7 +148,24 @@ void function()
 
 		vector<setl> ret(top);
 		fa(i, 0, top) ret[i] = vi[st[i]];
-		return ret; 
+		return ret;
+	};
+
+	auto g = [&](setl p, vector<setl>& vi)
+	{
+		int l = 1;
+		int r = vi.size();
+
+		while (l ^ r)
+		{
+			int m = l + r >> 1;
+			if (ccw(vi[0], vi[m], p) >= 0) l = m + 1;
+			else r = m;
+		}
+
+		l -= (l == vi.size()) && (ccw(vi[0], vi.back(), p) == 0);
+
+		return (l != 1 && l != vi.size() && ccw(vi[l - 1], vi[l], p) >= 0);
 	};
 
 

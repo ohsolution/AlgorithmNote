@@ -117,7 +117,7 @@ void function()
 	auto Isintersect=[&](setl a, setl b, setl c, setl d)
 	{
 		int ab = ccw(a, b, c) * ccw(a, b, d);
-		int cd = ccw(c, d, a) * ccw(c, d, a);
+		int cd = ccw(c, d, a) * ccw(c, d, b);
 
 		if (ab == 0 && cd == 0) // 두 벡터 평행
 		{

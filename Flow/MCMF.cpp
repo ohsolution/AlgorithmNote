@@ -1,101 +1,112 @@
+
+struct edge
+{
+	int a, b, cap, flow, cost;
+};
+
+vector<edge> ve;
 vector<int> adj[max_v];
-int vcap[max_v][max_v],vcost[max_v][max_v];
-int d[max_v],p[max_v],inq[max_v];
-
-bool spfa(int n, int s, int t)
-{
-    fill(d, d + n, INF);
-    fill(p, p + n, -1);    
-
-    d[s] = 0;
-    queue<int> bq;
-    bq.push(s);
-
-    while (bq.size())
-    {
-        int u = bq.front(); bq.pop();
-
-        inq[u] = 0;
-
-        for (auto& v : adj[u])
-        {
-            if (vcap[u][v] > 0 && d[v] > d[u] + vcost[u][v])
-            {
-                d[v] = d[u] + vcost[u][v];
-                p[v] = u;
-
-                if (!inq[v]) inq[v] = 1, bq.push(v);
-            }
-        }
-    }
-
-    return d[t] != INF;
-}
-
-int mcmf(int n, int s, int t)
-{
-    int flow = 0;
-    int cost = 0;    
-
-    while (spfa(n, s, t))
-    {
-        int f = INF;
-        int u = t;
-        while (u ^ s) ckmin(f, vcap[p[u]][u]), u = p[u];
-        flow += f;
-        cost += f * d[t];
-        u = t;
-        while (u ^ s) vcap[p[u]][u] -= f, vcap[u][p[u]] += f, u = p[u];
-    }
-
-    return cost;
-}
+int idx[max_v], dist[max_v];
+int va[max_v], vb[max_v],inq[max_v];
+bool vist[max_v];
 
 int main()
 {
-#ifdef OHSOLUTION
-    freopen("input.txt", "r", stdin);
+#ifdef SCPC
+	freopen("input.txt", "r", stdin);
 #endif
-    ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+	ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
 
-    int n, m; ci(n >> m);
+	int n; ci(n);
 
-    auto cvt = [&](int x, int tp)
-    {
-        return x + 1 + tp * m;
-    };
+	fa(i, 1, n + 1) ci(va[i]);
+	fa(i, 1, n + 1) ci(vb[i]);
 
-    auto addedge = [&](int a, int b, int cap, int cost)
-    {
-        adj[a].push_back(b);
-        adj[b].push_back(a);
-        vcost[a][b] = cost;
-        vcost[b][a] = -cost;
-        vcap[a][b] = cap;
-    };
-  
-    int s = 0;
-    int t = n + m + 2;
+	int S = 2 * n + 1;
+	int T = 2 * n + 2;
 
-    fa(i, 0, n)
-    {
-        int x; ci(x);
-        addedge(cvt(i,1),t, x, 0);
-    }
+	auto addedge = [&](int a, int b, int cap, int cost)
+	{			
+		edge e1 = { a,b,cap,0,cost };
+		edge e2 = { b,a,0,0,-cost };
+		adj[a].push_back(ve.size());
+		ve.push_back(e1);		
+		adj[b].push_back(ve.size());
+		ve.push_back(e2);
+	};
 
-    fa(i, 0, m)
-    {
-        int x; ci(x);
-        addedge(s, cvt(i, 0), x, 0);
-    }
+	// S a
+	fa(i, 1, n + 1) addedge(S, i, 1, 0);
+	// b T
+	fa(i, 1, n + 1) addedge(i+n, T, 1, 0);
+	// a b
+	fa(i, 1, n + 1) fa(j, 1, n + 1) addedge(i, j + n,1, -((va[i]>=vb[j]) + (va[i]>vb[j])));	
 
-    fa(i, 0, m) fa(j, 0, n)
-    {
-        int x; ci(x);
-        addedge(cvt(i, 0), cvt(j, 1), INF, x);
-    }
+	int ans = 0;
 
-    co(mcmf(t + 1, s, t));
+	auto spfa = [&]()
+	{		
+		memset(dist, 0x3f, sizeof(dist));
+		memset(inq, 0, sizeof(inq));
 
-    return 0;
+		queue<int> bq; bq.push(S);
+		dist[S] = 0; inq[S] = 1;
+		while (bq.size())
+		{
+			int u = bq.front(); bq.pop(); inq[u] = 0;
+			
+			for (auto& v : adj[u])
+			{
+				auto c = ve[v];
+				if (c.flow<c.cap && (dist[c.b] > dist[u] + c.cost))
+				{
+					dist[c.b] = dist[u] + c.cost;
+					if (!inq[c.b])bq.push(c.b), inq[c.b] = 1;
+				}
+			}
+		}
+
+		return dist[T] != INF;
+	};
+
+	
+	function<int(int, int)> dfs = [&](int u, int f)
+	{	
+		if (!f) return 0;
+		vist[u] = 1;		
+		if (u == T) return f;
+
+		for (; idx[u] < adj[u].size(); ++idx[u])
+		{
+			int v = adj[u][idx[u]];
+			auto c = ve[v];
+
+			if (dist[c.b] != dist[u] + c.cost || vist[c.b]) continue;
+
+			if (int flow = dfs(c.b, min(f, c.cap - c.flow)))
+			{
+				ve[v].flow += flow;
+				ve[v ^ 1].flow -= flow;
+				return flow;
+			}
+		}
+
+		return 0;
+	};
+
+	while (spfa())
+	{		
+		memset(idx, 0, sizeof(idx));
+		memset(vist, 0, sizeof(vist));
+		while (int f = dfs(S, INF))
+		{			
+			ans += dist[T] * f;
+			memset(vist, 0, sizeof(vist));
+		}
+		
+	}
+
+	co(-ans);
+
+	return 0;
 }

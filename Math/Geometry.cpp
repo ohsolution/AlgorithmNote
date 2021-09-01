@@ -168,5 +168,28 @@ void function()
 		return (l != 1 && l != vi.size() && ccw(vi[l - 1], vi[l], p) >= 0);
 	};
 
+	auto rotate_convex = [&](vector<setl>& vi) // 회전하는 캘리스퍼 O(n) 
+	{
+		LL ret = 0;
+		
+		auto nxt = [&](int s) {++s; return s == vi.size() ? 0 : s; };
+		auto ccw2 = [&](setl a, setl b, setl c, setl d)
+		{
+			d.first -= (c.first - b.first);
+			d.second -= (c.second - b.second);
+			return ccw(a, b, d);
+		};
 
+		bool flag = 1;
+
+		int j = 1;
+		fa(i, 0, vi.size())
+		{			
+			for (; ccw2(vi[i],vi[nxt(i)],vi[j],vi[nxt(j)])>0; j = nxt(j));		
+			ckmax(ret, h(vi[i], vi[j]));
+		}
+			
+		return ret;
+	};
+	
 }

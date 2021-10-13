@@ -11,10 +11,16 @@ LL egcd(LL a, LL b, LL& x, LL& y)
 setl get_sol(LL a, LL b , LL r)
 {
 	//ax + by = r
-    LL x,y,g=egcd(a,b,x,y);
+   	 LL x,y,g=egcd(a,b,x,y);
 	x *= r / g;
 	y *= r / g;
-
+	
+	if(r%g!=0)
+	{
+		// NO SOLUTION
+		return {-1,-1};
+	}
+	
 	LL A = b/ g;
 	LL B = a / g;
 
@@ -23,6 +29,7 @@ setl get_sol(LL a, LL b , LL r)
 
 	return { x,y }; // ax+by=r 의 해 반환
 }
+
 
 auto crt = [&](LL a1, LL a2, LL m1, LL m2)
 {

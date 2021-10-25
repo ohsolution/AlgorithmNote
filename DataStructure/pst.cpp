@@ -1,10 +1,5 @@
 //================code===================//
 
-#ifndef OHSOLUION
-#pragma GCC optimize("O3")
-#pragma GCC optimize("Ofast")
-#pragma GCC optimize("unroll-loops")
-#endif
 
 #include <bits/stdc++.h>
 
@@ -52,121 +47,164 @@ template<typename T, typename U> void ckmin(T& a, U b) { a = a > b ? b : a; }
 struct gcmp { bool operator()(LL a, LL b) { return a < b; } bool operator()(setl& a, setl& b) { return a.second < b.second; } };
 struct lcmp { bool operator()(LL a, LL b) { return a > b; } bool operator()(setl& a, setl& b) { return a.second > b.second; } };
 
-const int max_v = 1e5 + 7;
-const int max_k = 5e2 + 7;
+const int max_v = 1e7 + 7;
+const int max_k = 5e5 + 7;
 const int bsz = 27;
 const int INF = 0x3f3f3f3f;
 const LL LNF = 0x3f3f3f3f3f3f3f3f;
 const LL mod = 1e9 + 9;//998244353;// 
 template<typename T, typename U> void MOD(T& a, U b) { a += b;if(a<0) a+=mod; if (a >= mod) a -= mod; };
 
-struct PST
+
+struct Node
 {
-    struct Node
-    {
-        int l=-1;int r=-1;
-        LL v = 0;
-    };
+    int l,r,v;        
+};
+
+const int sz= 1<<20;     
+Node vt[max_v+max_k];
+int root[max_k];
+int rn,cn;
+
+
+void PST()
+{
+    root[rn++] = 1;
+    cn = sz;    
+    fd(i,sz-1,0) vt[i].l = i<<1,vt[i].r=i<<1|1;
+}
+
+void upd(int i,int v)
+{          
+    int cur = root[rn-1];
+    int nxt = cn;
+
+    root[rn++] = nxt;
+    vt[cn++] = vt[cur];
     
-    vector<Node> vt;
-    vector<int> root;
-    int sz;
+    int dep = 18;
     
-    void init(int n)
+    while(~dep)
     {
-        vt.clear();
-        root.clear();
-        root.push_back(1);
-        
-        sz=1;
-        while(sz<=n) sz<<=1;
-        
-        vt.assign(sz*2,Node());
-        //fa(i,0,n) vt[i+sz].v = d[i];
-        fd(i,sz-1,0) vt[i].l = i<<1,vt[i].r=i<<1|1;
-    }
-    
-    LL query(int l,int r,int node,int nl,int nr)
-    {
-        if(l<=nl && nr <=r) return vt[node].v;
-        if(nr <l || nl > r) return 0ll;
-        int mid = nl+nr>>1;
-        return query(l,r,vt[node].l,nl,mid) + query(l,r,vt[node].r,mid+1,nr);
-    }
-    
-    void upd(int i,LL v)
-    {
-        int nl = 0, nr = sz-1;
-        int cur = root.back();
-        int nxt = vt.size();
-        
-        root.push_back(nxt);
-        vt.push_back(vt[cur]);
-        
-        while(nl ^ nr)
-        {
-            int mid= nl+nr>>1;
+        if(i & (1<< dep))
+        {                
+            vt[nxt].r = nxt+1; ++nxt;
+            cur = vt[cur].r;
+            vt[cn++]= vt[cur];
             
-            if(i <= mid) 
-            {
-                nr=mid,vt[nxt].l = ++nxt;
-                cur = vt[cur].l;
-                vt.push_back(vt[cur]);
-            }
-            else
-            {
-                nl = mid+1,vt[nxt].r=++nxt;
-                cur = vt[cur].r;
-                vt.push_back(vt[cur]);    
-            }            
+        }
+        else
+        {
+            vt[nxt].l = nxt+1;
+            ++nxt;
+            cur = vt[cur].l;
+            vt[cn++]= vt[cur];
+            
         }
         
-        vt[nxt].v += v;
-        --nxt;
-        while(nxt>= root.back()) vt[nxt].v= vt[vt[nxt].l].v + vt[vt[nxt].r].v,--nxt;        
-    }    
-}pst;
+        --dep;
+    }
+    
+    vt[nxt].v += v;
+    --nxt;
+    assert(nxt - root[rn-1] <=30);
+    while(nxt >= root[rn-1]) vt[nxt].v = vt[vt[nxt].l].v + vt[vt[nxt].r].v,--nxt;
+}  
 
+int q2(int l,int r,int v)
+{        
+    int dep =18;    
+    int ret = 0;
+    
+    while(~dep)
+    {
+        int dl=  vt[vt[r].l].v - vt[vt[l].l].v;
+        int dr = vt[vt[r].r].v- vt[vt[l].r].v;
+        
+        if(dl && dr)
+        {
+            if(v&(1<<dep)) l= vt[l].l,r=vt[r].l;
+            else ret |=1<<dep,l=vt[l].r,r=vt[r].r;
+        }
+        else if(dl) l= vt[l].l,r=vt[r].l;
+        else if(dr) ret |=1<<dep,l=vt[l].r,r=vt[r].r;
+        else assert(0);
+        
+        --dep;
+    }
+    
+    return ret;
+};
 
+int q5(int l,int r,int k)
+{
+    int dep =18;    
+    int ret = 0;
+    
+    while(~dep)
+    {
+        int dl=  vt[vt[r].l].v - vt[vt[l].l].v;            
+        
+        if(dl <= k) k-=dl,ret|=(1<<dep),l=vt[l].r,r=vt[r].r;
+        else l=vt[l].l,r=vt[r].l;
+        --dep;
+    }
+    
+    return ret;
+}
+
+int q4(int l,int r,int k,int dep)
+{
+   // assert(dep >=0);
+    if(dep==0) 
+    {
+        if(k & (1<< dep))return vt[r].v - vt[l].v;
+            return (vt[vt[r].l].v - vt[vt[l].l].v);
+        
+    }
+    
+    if(k& (1<<dep)) // bit on
+    {            
+        return q4(vt[l].r,vt[r].r,k,dep-1) + (vt[vt[r].l].v - vt[vt[l].l].v);
+    }
+    else // bit off
+    {
+        return q4(vt[l].l,vt[r].l,k,dep-1);
+    }
+}
 
 int main()
 {
     ios_base::sync_with_stdio(0);cin.tie(0);
-    
-    int cnt; ci(cnt);
-    
-    while(cnt--)
+    int q; ci(q);
+        PST();
+    while(q--)
     {
-        int n,q; ci(n>>q);
+        int tp; ci(tp);
         
-        pst.init(n);
-        
-        vector<seti> vi(n);
-        
-        for(auto & x : vi) ci(x.first >> x.second);
-        sort(vi.begin(),vi.end());
-        
-        map<int,int> sp;
-        
-        int cn= 0;        
-        for(auto &[x,y] : vi)
+        if(tp==1)
         {
-            if(!sp.count(x)) sp[x]= cn;
-            pst.upd(y,1);
-            ++cn;
+            int x; ci(x); upd(x,1);
         }
-        
-        
-        while(q--)
+        else if(tp==2)
         {
-            int l,r, d,u; ci(l>>r >> d >> u);
-            
-            pst.query(d,u,r) - pst.query(d,u,l-1);
+            int l,r,x; ci(l>>r>>x);
+            co(q2(root[l-1],root[r],x)<<"\n");            
         }
-        
-    }    
-    
-    
-    
+        else if(tp==3)
+        {
+            int x; ci(x); rn-=x;                
+        }
+        else if(tp==4)
+        {
+            int l,r,x; ci(l>>r>>x);
+            co(q4(root[l-1],root[r],x,18)<<"\n");            
+        }
+        else
+        {
+            int l,r,x; ci(l>>r>>x);
+            co(q5(root[l-1],root[r],x-1)<<"\n");
+        }
+    }
 }
 
